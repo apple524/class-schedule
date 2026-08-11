@@ -5,7 +5,7 @@
      crossorigin="anonymous"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>课程表 🦋</title>
+    <title id="pageTitle">课程表 🦋</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Comic+Neue:wght@400;700&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -161,6 +161,7 @@
             border-radius: 30px;
             box-shadow: var(--shadow);
             border: 3px solid var(--pink-medium);
+            position: relative;
         }
         .header h1 {
             font-size: 2.5rem;
@@ -183,6 +184,27 @@
             gap: 0.5rem;
         }
         .subtitle { color: var(--text-light); font-size: 1rem; }
+
+        /* 语言切换按钮 */
+        .lang-switch-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: white;
+            border: 2px solid var(--primary-dark);
+            color: var(--primary-dark);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .lang-switch-btn:hover {
+            background: var(--primary-dark);
+            color: white;
+            transform: scale(1.05);
+        }
 
         .main-content {
             display: grid;
@@ -811,6 +833,7 @@
             .butterfly, .flower, .star { font-size: 1rem; }
             .print-controls { flex-direction: column; gap: 0.5rem; }
             .weekend-switches { flex-wrap: wrap; justify-content: center; }
+            .lang-switch-btn { top: 10px; right: 10px; padding: 0.2rem 0.5rem; font-size: 0.8rem; }
         }
 
         /* 通知动画 */
@@ -937,7 +960,9 @@
 
     <div class="container">
         <header class="header">
-            <h1>🌈 我的课程表 🌈</h1>
+            <!-- 语言切换按钮 -->
+            <button class="lang-switch-btn" id="langSwitchBtn" onclick="toggleLanguage()">English</button>
+            <h1 id="headerTitle">🌈 我的课程表 🌈</h1>
             <div class="owner-name" id="ownerNameDisplay" onclick="showNameEdit()">
                 <span id="ownerIcon">👧</span>
                 <span id="ownerNameText">张小鸣</span>
@@ -946,9 +971,9 @@
             </div>
             <div class="name-input-container" id="nameInputContainer">
                 <input type="text" class="name-input" id="nameInput" placeholder="输入名字" maxlength="10">
-                <button class="name-confirm-btn" onclick="confirmNameEdit()">确定</button>
+                <button class="name-confirm-btn" id="nameConfirmBtn" onclick="confirmNameEdit()">确定</button>
             </div>
-            <p class="subtitle">让学习变得更有趣 ✨</p>
+            <p class="subtitle" id="headerSubtitle">让学习变得更有趣 ✨</p>
             <div class="theme-selector">
                 <button class="theme-btn active" data-theme="sakura" title="🌸 樱花粉 (女孩)">🌸</button>
                 <button class="theme-btn" data-theme="dream" title="💜 梦幻紫 (女孩)">🌙</button>
@@ -962,9 +987,9 @@
         <div class="main-content">
             <!-- 配置面板 -->
             <div class="config-panel">
-                <h2>📝 课程配置 🎨</h2>
+                <h2 id="configPanelTitle">📝 课程配置 🎨</h2>
                 <div class="course-manager">
-                    <p class="subtitle" style="text-align:center; margin-bottom: 1rem;">⬇️ 在这里添加课程，点击课程表即可选择哦</p>
+                    <p class="subtitle" id="configSubtitle" style="text-align:center; margin-bottom: 1rem;">⬇️ 在这里添加课程，点击课程表即可选择哦</p>
                     <div class="add-course-section">
                         <div class="emoji-input-wrapper">
                             <input type="text" class="emoji-input" id="newCourseEmoji" value="📚" maxlength="2" title="点击选择emoji">
@@ -982,7 +1007,7 @@
 
                 <!-- 午休控制区域 -->
                 <div class="lunch-control-section">
-                    <h3>🍱 午休设置 ⏰</h3>
+                    <h3 id="lunchTitle">🍱 午休设置 ⏰</h3>
                     <div class="lunch-controls-row">
                         <button class="lunch-btn" id="lunchToggleBtn">🍱 显示午休</button>
                         <button class="lunch-btn" id="lunchUpBtn" disabled>⬆️ 上移</button>
@@ -990,7 +1015,7 @@
                         <button class="lunch-btn" id="lunchDownBtn" disabled>⬇️ 下移</button>
                     </div>
                     <div class="lunch-time-edit" id="lunchTimeEdit" style="display:none;">
-                        <span>⏰ 午休时间：</span>
+                        <span id="lunchTimeLabel">⏰ 午休时间：</span>
                         <input type="time" id="lunchStartTime" value="12:00">
                         <span>—</span>
                         <input type="time" id="lunchEndTime" value="14:00">
@@ -1011,24 +1036,24 @@
             <!-- 预览面板 -->
             <div class="preview-panel">
                 <div class="preview-header">
-                    <h2>👀 课程表预览 🌟</h2>
+                    <h2 id="previewTitle">👀 课程表预览 🌟</h2>
                     <div class="print-controls">
                         <button class="btn btn-print" id="printBtn">🖨️ 打印</button>
                         <div class="weekend-switches">
                             <label class="switch">
                                 <input type="checkbox" id="showSaturday" checked>
                                 <span class="slider"></span>
-                                <span class="switch-label">周六</span>
+                                <span class="switch-label" id="labelSaturday">周六</span>
                             </label>
                             <label class="switch">
                                 <input type="checkbox" id="showSunday" checked>
                                 <span class="slider"></span>
-                                <span class="switch-label">周日</span>
+                                <span class="switch-label" id="labelSunday">周日</span>
                             </label>
                             <label class="switch">
                                 <input type="checkbox" id="equalWidth">
                                 <span class="slider"></span>
-                                <span class="switch-label">等宽</span>
+                                <span class="switch-label" id="labelEqualWidth">等宽</span>
                             </label>
                         </div>
                     </div>
@@ -1045,7 +1070,7 @@
         <div class="print-header">
             <div class="print-decorations left" id="printDecorLeft">🦋🌸</div>
             <div class="print-decorations right" id="printDecorRight">🌺🦋</div>
-            <h1>🌈 我的课程表 🌈</h1>
+            <h1 id="printHeaderTitle">🌈 我的课程表 🌈</h1>
             <div class="print-owner" id="printOwnerName">👧 张小鸣 🎀</div>
         </div>
         <div id="printSchedule"></div>
@@ -1056,14 +1081,14 @@
     <div class="course-modal-overlay" id="courseModalOverlay">
         <div class="course-modal">
             <div class="course-modal-header">
-                <h3>📚 选择课程 ✨</h3>
+                <h3 id="modalSelectTitle">📚 选择课程 ✨</h3>
                 <p id="modalCellInfo">周一 第1节</p>
             </div>
             <div class="course-options" id="courseOptions">
                 <!-- 课程选项将通过JavaScript动态生成 -->
             </div>
             <div class="course-modal-custom">
-                <label>✏️ 或者输入自定义课程：</label>
+                <label id="modalCustomLabel">✏️ 或者输入自定义课程：</label>
                 <div class="custom-course-row">
                     <input type="text" class="custom-emoji-input" id="customEmojiInput" value="📚" maxlength="2" title="点击选择emoji">
                     <input type="text" id="customCourseInput" placeholder="输入课程名称...">
@@ -1080,7 +1105,7 @@
     <!-- 时间编辑弹窗 -->
     <div class="time-modal-overlay" id="timeModalOverlay">
         <div class="time-modal">
-            <h3>⏰ 设置上课时间</h3>
+            <h3 id="timeModalTitle">⏰ 设置上课时间</h3>
             <p id="timePeriodInfo" style="text-align:center; color: var(--text-light); margin-bottom: 1rem;">第1节</p>
             <div class="time-inputs">
                 <input type="time" id="timeStart" value="08:00">
@@ -1099,7 +1124,7 @@
     <div class="confirm-modal-overlay" id="confirmModalOverlay">
         <div class="course-modal" style="width: 320px;">
             <div class="course-modal-header">
-                <h3>⚠️ 确认删除</h3>
+                <h3 id="confirmTitle">⚠️ 确认删除</h3>
             </div>
             <div style="padding: 1.5rem; text-align: center; font-size: 1.1rem; color: var(--text-dark);">
                 <p id="confirmMessage">确定要删除吗？</p>
@@ -1112,6 +1137,171 @@
     </div>
 
     <script>
+        // ==================== 国际化 (i18n) 字典 ====================
+        let currentLang = 'zh'; // 'zh' 或 'en'
+
+        const i18n = {
+            zh: {
+                langBtn: 'English',
+                pageTitleSuffix: '的课程表 🦋',
+                headerTitle: '🌈 我的课程表 🌈',
+                headerSubtitle: '让学习变得更有趣 ✨',
+                namePlaceholder: '输入名字',
+                nameConfirm: '确定',
+                configPanelTitle: '📝 课程配置 🎨',
+                configSubtitle: '⬇️ 在这里添加课程，点击课程表即可选择哦',
+                newCourseInputPh: '输入新课程名称...',
+                addBtn: '➕ 添加',
+                lunchTitle: '🍱 午休设置 ⏰',
+                lunchShow: '🍱 显示午休',
+                lunchHide: '🙈 隐藏午休',
+                lunchUp: '⬆️ 上移',
+                lunchDown: '⬇️ 下移',
+                lunchNotShown: '未显示',
+                lunchPosText: (pos) => `第${pos}节后`,
+                lunchTimeLabel: '⏰ 午休时间：',
+                motivationPh: '输入你的激励语...',
+                previewTitle: '👀 课程表预览 🌟',
+                printBtn: '🖨️ 打印',
+                satSwitch: '周六',
+                sunSwitch: '周日',
+                equalWidthSwitch: '等宽',
+                timeColHeader: '时间',
+                periodLabel: (p) => `第${p}节`,
+                lunchRowText: '🍱 午 休 时 间 🍱',
+                reducePeriod: '➖ 减少一节',
+                addPeriod: '➕ 新增一节',
+                totalPeriods: (count) => `共 ${count} 节课`,
+                modalTitle: '📚 选择课程 ✨',
+                modalCustomLabel: '✏️ 或者输入自定义课程：',
+                modalCourseInputPh: '输入课程名称...',
+                confirm: '💾 确定',
+                clear: '🗑️ 清空',
+                cancel: '❌ 取消',
+                restOption: '休息',
+                timeModalTitle: '⏰ 设置上课时间',
+                confirmDeleteTitle: '⚠️ 确认删除',
+                defaultName: '张小鸣',
+                defaultMotivation: '学习很苦,坚持很酷',
+                // 提示文案
+                toastCourseExists: '⚠️ 该课程已存在！',
+                toastMaxCourses: '⚠️ 课程数量已达上限！',
+                toastCourseAdded: (emoji, name) => `✅ 已添加课程：${emoji} ${name}`,
+                toastCourseDeleted: (emoji, name) => `🗑️ 已删除课程：${emoji} ${name}`,
+                toastLunchShown: '🍱 已显示午休！',
+                toastLunchHidden: '🙈 已隐藏午休！',
+                toastLunchMovedUp: '⬆️ 午休已上移！',
+                toastLunchMovedDown: '⬇️ 下移午休！',
+                toastQuoteChanged: '🎲 已换一条新的激励语！',
+                toastNameUpdated: '✅ 名字已更新！',
+                toastThemeChanged: '🎨 主题已切换！',
+                toastPeriodAdded: (p) => `➕ 已添加第${p}节课`,
+                toastPeriodMax: '⚠️ 最多支持12节课',
+                toastPeriodRemoved: '➖ 已删除最后一节课',
+                toastPeriodMin: '⚠️ 至少需要1节课',
+                toastCourseUpdated: '✅ 课程已更新！',
+                toastCellCleared: '🗑️ 已清空该节课！',
+                toastTimeSet: '⏰ 时间已设置！',
+                toastTimeCleared: '🗑️ 时间已清空！',
+                deleteCourseConfirm: (emoji, name) => `确定要删除课程"${emoji} ${name}"吗？`,
+                days: { monday: '周一', tuesday: '周二', wednesday: '周三', thursday: '周四', friday: '周五', saturday: '周六', sunday: '周日' },
+                defaultCourses: [
+                    { name: '语文', emoji: '📖' }, { name: '数学', emoji: '🔢' }, { name: '英语', emoji: '🔤' },
+                    { name: '道德与法治', emoji: '⚖️' }, { name: '历史', emoji: '📜' }, { name: '地理', emoji: '🌍' },
+                    { name: '物理', emoji: '⚛️' }, { name: '化学', emoji: '🧪' }, { name: '生物', emoji: '🧬' },
+                    { name: '体育与健康', emoji: '⚽' }, { name: '音乐', emoji: '🎵' }, { name: '美术', emoji: '🎨' },
+                    { name: '信息技术', emoji: '💻' }, { name: '劳动/综合实践', emoji: '🔨' }, { name: '计算机', emoji: '🖥️' },
+                    { name: '早自习', emoji: '📚' }, { name: '晚自习', emoji: '🌙' }
+                ],
+                quotes: [
+                    '学习很苦,坚持很酷', '每一次努力，都是成长的阶梯', '今天的努力，是明天的骄傲',
+                    '相信自己，你可以做到', '梦想在前方，努力在路上', '小小的进步，也是大大的成功',
+                    '做最好的自己，不负青春时光', '勇敢追梦，永不放弃', '每天进步一点点，就是最棒的自己',
+                    '用微笑面对挑战，用努力创造奇迹', '你比想象中更优秀', '坚持下去，美好正在路上',
+                    '学习是给自己最好的礼物', '今天的汗水，是明天的彩虹', '相信努力的力量'
+                ]
+            },
+            en: {
+                langBtn: '中文',
+                pageTitleSuffix: "'s Schedule 🦋",
+                headerTitle: '🌈 My Schedule 🌈',
+                headerSubtitle: 'Make learning fun ✨',
+                namePlaceholder: 'Enter name',
+                nameConfirm: 'OK',
+                configPanelTitle: '📝 Course Setup 🎨',
+                configSubtitle: '⬇️ Add courses here, then click grid cells to select',
+                newCourseInputPh: 'New course name...',
+                addBtn: '➕ Add',
+                lunchTitle: '🍱 Lunch Break ⏰',
+                lunchShow: '🍱 Show Lunch',
+                lunchHide: '🙈 Hide Lunch',
+                lunchUp: '⬆️ Move Up',
+                lunchDown: '⬇️ Move Down',
+                lunchNotShown: 'Hidden',
+                lunchPosText: (pos) => `After Period ${pos}`,
+                lunchTimeLabel: '⏰ Lunch Time:',
+                motivationPh: 'Type your motivational quote...',
+                previewTitle: '👀 Timetable Preview 🌟',
+                printBtn: '🖨️ Print',
+                satSwitch: 'Sat',
+                sunSwitch: 'Sun',
+                equalWidthSwitch: 'Equal Width',
+                timeColHeader: 'Time',
+                periodLabel: (p) => `Period ${p}`,
+                lunchRowText: '🍱 LUNCH BREAK 🍱',
+                reducePeriod: '➖ Remove Period',
+                addPeriod: '➕ Add Period',
+                totalPeriods: (count) => `Total: ${count} Periods`,
+                modalTitle: '📚 Select Course ✨',
+                modalCustomLabel: '✏️ Or enter custom course:',
+                modalCourseInputPh: 'Course name...',
+                confirm: '💾 Save',
+                clear: '🗑️ Clear',
+                cancel: '❌ Cancel',
+                restOption: 'Break',
+                timeModalTitle: '⏰ Set Period Time',
+                confirmDeleteTitle: '⚠️ Confirm Delete',
+                defaultName: 'Alex',
+                defaultMotivation: 'Study hard, stay cool!',
+                // 提示文案
+                toastCourseExists: '⚠️ Course already exists!',
+                toastMaxCourses: '⚠️ Maximum course limit reached!',
+                toastCourseAdded: (emoji, name) => `✅ Added course: ${emoji} ${name}`,
+                toastCourseDeleted: (emoji, name) => `🗑️ Deleted course: ${emoji} ${name}`,
+                toastLunchShown: '🍱 Lunch break visible!',
+                toastLunchHidden: '🙈 Lunch break hidden!',
+                toastLunchMovedUp: '⬆️ Moved lunch up!',
+                toastLunchMovedDown: '⬇️ Moved lunch down!',
+                toastQuoteChanged: '🎲 Switched quote!',
+                toastNameUpdated: '✅ Name updated!',
+                toastThemeChanged: '🎨 Theme updated!',
+                toastPeriodAdded: (p) => `➕ Added Period ${p}`,
+                toastPeriodMax: '⚠️ Maximum 12 periods allowed',
+                toastPeriodRemoved: '➖ Removed last period',
+                toastPeriodMin: '⚠️ Minimum 1 period required',
+                toastCourseUpdated: '✅ Course updated!',
+                toastCellCleared: '🗑️ Cleared cell!',
+                toastTimeSet: '⏰ Time saved!',
+                toastTimeCleared: '🗑️ Time cleared!',
+                deleteCourseConfirm: (emoji, name) => `Are you sure you want to delete "${emoji} ${name}"?`,
+                days: { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' },
+                defaultCourses: [
+                    { name: 'Chinese', emoji: '📖' }, { name: 'Math', emoji: '🔢' }, { name: 'English', emoji: '🔤' },
+                    { name: 'Civics', emoji: '⚖️' }, { name: 'History', emoji: '📜' }, { name: 'Geography', emoji: '🌍' },
+                    { name: 'Physics', emoji: '⚛️' }, { name: 'Chemistry', emoji: '🧪' }, { name: 'Biology', emoji: '🧬' },
+                    { name: 'PE', emoji: '⚽' }, { name: 'Music', emoji: '🎵' }, { name: 'Art', emoji: '🎨' },
+                    { name: 'IT', emoji: '💻' }, { name: 'Crafts', emoji: '🔨' }, { name: 'Computer', emoji: '🖥️' },
+                    { name: 'Morning Study', emoji: '📚' }, { name: 'Evening Study', emoji: '🌙' }
+                ],
+                quotes: [
+                    'Study hard, stay cool!', 'Every step counts toward your growth.', 'Today effort is tomorrow pride.',
+                    'Believe in yourself, you can do it!', 'Follow your dreams with action.', 'Small gains build big success.',
+                    'Be your best self every day.', 'Dream brave, never give up!', 'Progress every single day.',
+                    'Smile at challenges, build wonders.', 'You are stronger than you think.', 'Keep going, good things are ahead.'
+                ]
+            }
+        };
+
         // ==================== 数据结构 ====================
         const scheduleData = {
             monday: { courses: ['', '', '', '', '', '', '', ''] },
@@ -1125,29 +1315,8 @@
 
         let currentDay = 'monday';
 
-        // 默认课程列表（带emoji）
-        const defaultCourseList = [
-            { name: '语文', emoji: '📖' },
-            { name: '数学', emoji: '🔢' },
-            { name: '英语', emoji: '🔤' },
-            { name: '道德与法治', emoji: '⚖️' },
-            { name: '历史', emoji: '📜' },
-            { name: '地理', emoji: '🌍' },
-            { name: '物理', emoji: '⚛️' },
-            { name: '化学', emoji: '🧪' },
-            { name: '生物', emoji: '🧬' },
-            { name: '体育与健康', emoji: '⚽' },
-            { name: '音乐', emoji: '🎵' },
-            { name: '美术', emoji: '🎨' },
-            { name: '信息技术', emoji: '💻' },
-            { name: '劳动/综合实践', emoji: '🔨' },
-            { name: '计算机', emoji: '🖥️' },
-            { name: '早自习', emoji: '📚' },
-            { name: '晚自习', emoji: '🌙' }
-        ];
-
         // 动态课程列表
-        let courseList = JSON.parse(JSON.stringify(defaultCourseList));
+        let courseList = [];
 
         // 常用emoji列表
         const commonEmojis = [
@@ -1158,9 +1327,9 @@
             '🚀', '🌟', '🎪', '🎭', '🎬', '📷', '🎮', '🧩', '🎲', '🎁'
         ];
 
-        // 激励语
-        let motivationText = '学习很苦,坚持很酷';
-        let ownerName = '张小鸣';
+        // 基础全局变量
+        let motivationText = '';
+        let ownerName = '';
         let currentTheme = 'sakura';
         let periodCount = 8;
 
@@ -1173,7 +1342,7 @@
 
         // 午休设置
         let lunchBreakEnabled = false;  // 是否显示午休
-        let lunchBreakPosition = 4;     // 午休插入在第几节课之后（0~periodCount）
+        let lunchBreakPosition = 4;     // 午休插入在第几节课之后
         let lunchTime = { start: '12:00', end: '14:00' };  // 午休时间
 
         // 主题装饰元素配置
@@ -1186,48 +1355,52 @@
             space: { items: ['🚀', '🌟', '🪐', '👨‍🚀', '🛸', '☄️', '🌌', '🔭', '⭐', '🌙'], icon: '👦', decor: '🚀', printLeft: '🚀🌟', printRight: '🪐🛸' }
         };
 
-        // 100条激励话术
-        const motivationQuotes = [
-            '学习很苦,坚持很酷', '每一次努力，都是成长的阶梯', '今天的努力，是明天的骄傲',
-            '相信自己，你可以做到', '梦想在前方，努力在路上', '小小的进步，也是大大的成功',
-            '做最好的自己，不负青春时光', '勇敢追梦，永不放弃', '每天进步一点点，就是最棒的自己',
-            '用微笑面对挑战，用努力创造奇迹', '你比想象中更优秀', '坚持下去，美好正在路上',
-            '学习是给自己最好的礼物', '今天的汗水，是明天的彩虹', '相信努力的力量',
-            '每一个困难，都是成长的机会', '做一个温暖又努力的女孩', '知识是最美的装饰',
-            '用心学习，快乐成长', '你的努力，时光会记得', '保持热爱，奔赴山海',
-            '做自己的小太阳', '努力到无能为力，拼搏到感动自己', '星光不问赶路人',
-            '温柔且坚定地前行', '每一天都是新的开始', '用知识点亮未来',
-            '做一个闪闪发光的女孩', '越努力，越幸运', '书山有路勤为径',
-            '学海无涯苦作舟', '天道酬勤，厚积薄发', '宝剑锋从磨砺出',
-            '梅花香自苦寒来', '少年易学老难成', '一寸光阴不可轻',
-            '黑发不知勤学早', '白首方悔读书迟', '读书破万卷，下笔如有神',
-            '书籍是人类进步的阶梯', '知识改变命运', '学习成就未来',
-            '今日事，今日毕', '明日复明日，明日何其多', '我生待明日，万事成蹉跎',
-            '少壮不努力，老大徒伤悲', '一分耕耘，一分收获', '不经一番寒彻骨，怎得梅花扑鼻香',
-            '有志者事竟成', '世上无难事，只怕有心人', '只要功夫深，铁杵磨成针',
-            '千里之行，始于足下', '不积跬步，无以至千里', '不积小流，无以成江海',
-            '锲而不舍，金石可镂', '绳锯木断，水滴石穿', '业精于勤，荒于嬉',
-            '行成于思，毁于随', '书读百遍，其义自见', '温故而知新',
-            '学而不思则罔', '思而不学则殆', '知之为知之，不知为不知',
-            '三人行，必有我师焉', '敏而好学，不耻下问', '学无止境',
-            '活到老，学到老', '笨鸟先飞早入林', '勤能补拙是良训',
-            '一份辛苦一份才', '天才是百分之一的灵感加百分之九十九的汗水', '成功的秘诀在于坚持',
-            '失败是成功之母', '从哪里跌倒就从哪里爬起来', '困难像弹簧，你弱它就强',
-            '自信是成功的第一秘诀', '态度决定一切', '细节决定成败',
-            '机会总是留给有准备的人', '今天的你，比昨天更优秀', '每一次尝试，都是一次成长',
-            '勇敢做自己，世界会为你让路', '用努力书写精彩人生', '做一个有梦想的追梦人',
-            '让优秀成为一种习惯', '用行动证明自己', '不怕慢，就怕站',
-            '一步一个脚印，踏实前行', '心有多大，舞台就有多大', '你的潜力无限',
-            '做最棒的自己', '用智慧点亮人生', '学习使我快乐',
-            '知识就是力量', '读书使人明智', '腹有诗书气自华',
-            '书香伴我成长', '在书中遇见更好的自己', '每一本书都是一个新世界',
-            '阅读让生活更美好'
-        ];
+        // ==================== 语言切换逻辑 ====================
+        function toggleLanguage() {
+            currentLang = (currentLang === 'zh') ? 'en' : 'zh';
+            updateStaticText();
+            renderSchedule();
+            renderCourseManager();
+            updateLunchControls();
+            saveToLocalStorage();
+        }
 
-        const dayMap = {
-            monday: '周一', tuesday: '周二', wednesday: '周三',
-            thursday: '周四', friday: '周五', saturday: '周六', sunday: '周日'
-        };
+        function updateStaticText() {
+            const t = i18n[currentLang];
+            document.getElementById('langSwitchBtn').textContent = t.langBtn;
+            document.getElementById('headerTitle').textContent = t.headerTitle;
+            document.getElementById('printHeaderTitle').textContent = t.headerTitle;
+            document.getElementById('headerSubtitle').textContent = t.headerSubtitle;
+            document.getElementById('nameInput').placeholder = t.namePlaceholder;
+            document.getElementById('nameConfirmBtn').textContent = t.nameConfirm;
+            document.getElementById('configPanelTitle').textContent = t.configPanelTitle;
+            document.getElementById('configSubtitle').textContent = t.configSubtitle;
+            document.getElementById('newCourseInput').placeholder = t.newCourseInputPh;
+            document.getElementById('addCourseBtn').textContent = t.addBtn;
+            document.getElementById('lunchTitle').textContent = t.lunchTitle;
+            document.getElementById('lunchTimeLabel').textContent = t.lunchTimeLabel;
+            document.getElementById('motivationText').placeholder = t.motivationPh;
+            document.getElementById('previewTitle').textContent = t.previewTitle;
+            document.getElementById('printBtn').textContent = t.printBtn;
+            document.getElementById('labelSaturday').textContent = t.satSwitch;
+            document.getElementById('labelSunday').textContent = t.sunSwitch;
+            document.getElementById('labelEqualWidth').textContent = t.equalWidthSwitch;
+            document.getElementById('modalSelectTitle').textContent = t.modalTitle;
+            document.getElementById('modalCustomLabel').textContent = t.modalCustomLabel;
+            document.getElementById('customCourseInput').placeholder = t.modalCourseInputPh;
+            document.getElementById('confirmCourseBtn').textContent = t.confirm;
+            document.getElementById('clearCellBtn').textContent = t.clear;
+            document.getElementById('cancelCourseBtn').textContent = t.cancel;
+            document.getElementById('timeModalTitle').textContent = t.timeModalTitle;
+            document.getElementById('confirmTimeBtn').textContent = t.confirm;
+            document.getElementById('clearTimeBtn').textContent = t.clear;
+            document.getElementById('cancelTimeBtn').textContent = t.cancel;
+            document.getElementById('confirmTitle').textContent = t.confirmDeleteTitle;
+            document.getElementById('confirmYesBtn').textContent = t.confirm;
+            document.getElementById('confirmNoBtn').textContent = t.cancel;
+
+            updateOwnerNameDisplay();
+        }
 
         // ==================== 初始化 ====================
         document.addEventListener('DOMContentLoaded', () => {
@@ -1238,8 +1411,9 @@
             initTimeModalEvents();
             initEmojiPicker();
             initLunchControls();
+            
+            updateStaticText();
             applyTheme(currentTheme);
-            updateOwnerNameDisplay();
             renderSchedule();
             renderCourseManager();
             updateLunchControls();
@@ -1293,12 +1467,13 @@
 
             // 骰子按钮
             document.getElementById('diceBtn').addEventListener('click', () => {
-                const randomIndex = Math.floor(Math.random() * motivationQuotes.length);
-                const randomQuote = motivationQuotes[randomIndex];
+                const quotes = i18n[currentLang].quotes;
+                const randomIndex = Math.floor(Math.random() * quotes.length);
+                const randomQuote = quotes[randomIndex];
                 document.getElementById('motivationText').value = randomQuote;
                 motivationText = randomQuote;
                 saveToLocalStorage();
-                showNotification('🎲 已换一条新的激励语！');
+                showNotification(i18n[currentLang].toastQuoteChanged);
             });
 
             // 名字输入框键盘事件
@@ -1320,18 +1495,15 @@
             });
             picker.innerHTML = html;
 
-            // 添加课程的emoji输入框
             const emojiInput = document.getElementById('newCourseEmoji');
             emojiInput.addEventListener('click', (e) => {
                 e.stopPropagation();
                 picker.classList.toggle('active');
             });
 
-            // 弹窗中的emoji输入框
             const customEmojiInput = document.getElementById('customEmojiInput');
             customEmojiInput.addEventListener('click', (e) => {
                 e.stopPropagation();
-                // 复用同一个picker，但位置需要调整
                 picker.style.position = 'fixed';
                 picker.style.left = e.clientX + 'px';
                 picker.style.top = (e.clientY + 30) + 'px';
@@ -1339,7 +1511,6 @@
                 picker.classList.add('active');
             });
 
-            // emoji选项点击
             picker.addEventListener('click', (e) => {
                 if (e.target.classList.contains('emoji-picker-item')) {
                     const emoji = e.target.dataset.emoji;
@@ -1357,7 +1528,6 @@
                 }
             });
 
-            // 点击其他地方关闭
             document.addEventListener('click', () => {
                 picker.classList.remove('active');
                 picker.dataset.target = '';
@@ -1379,7 +1549,7 @@
 
                 const deleteBtn = document.createElement('span');
                 deleteBtn.className = 'course-delete-btn';
-                deleteBtn.title = '删除';
+                deleteBtn.title = currentLang === 'zh' ? '删除' : 'Delete';
                 deleteBtn.textContent = '✕';
                 deleteBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1391,32 +1561,30 @@
         }
 
         function addCourse(name, emoji) {
-            // 检查是否已存在（按名称）
             if (courseList.some(c => c.name === name)) {
-                showNotification('⚠️ 该课程已存在！');
+                showNotification(i18n[currentLang].toastCourseExists);
                 return;
             }
             if (courseList.length >= 50) {
-                showNotification('⚠️ 课程数量已达上限！');
+                showNotification(i18n[currentLang].toastMaxCourses);
                 return;
             }
             courseList.push({ name, emoji: emoji || '📚' });
             saveToLocalStorage();
             renderCourseManager();
-            showNotification(`✅ 已添加课程：${emoji} ${name}`);
+            showNotification(i18n[currentLang].toastCourseAdded(emoji, name));
         }
 
         function deleteCourse(index) {
             const course = courseList[index];
-            openConfirmModal(`确定要删除课程"${course.emoji} ${course.name}"吗？`, () => {
+            openConfirmModal(i18n[currentLang].deleteCourseConfirm(course.emoji, course.name), () => {
                 courseList.splice(index, 1);
                 saveToLocalStorage();
                 renderCourseManager();
-                showNotification(`🗑️ 已删除课程：${course.emoji} ${course.name}`);
+                showNotification(i18n[currentLang].toastCourseDeleted(course.emoji, course.name));
             });
         }
 
-        // 根据课程名查找emoji
         function getCourseEmoji(courseName) {
             if (!courseName) return '';
             const course = courseList.find(c => c.name === courseName);
@@ -1449,7 +1617,7 @@
             saveToLocalStorage();
             renderSchedule();
             updateLunchControls();
-            showNotification(lunchBreakEnabled ? '🍱 已显示午休！' : '🙈 已隐藏午休！');
+            showNotification(lunchBreakEnabled ? i18n[currentLang].toastLunchShown : i18n[currentLang].toastLunchHidden);
         }
 
         function moveLunchUp() {
@@ -1458,7 +1626,7 @@
                 saveToLocalStorage();
                 renderSchedule();
                 updateLunchControls();
-                showNotification('⬆️ 午休已上移！');
+                showNotification(i18n[currentLang].toastLunchMovedUp);
             }
         }
 
@@ -1468,38 +1636,42 @@
                 saveToLocalStorage();
                 renderSchedule();
                 updateLunchControls();
-                showNotification('⬇️ 午休已下移！');
+                showNotification(i18n[currentLang].toastLunchMovedDown);
             }
         }
 
         function updateLunchControls() {
+            const t = i18n[currentLang];
             const toggleBtn = document.getElementById('lunchToggleBtn');
             const upBtn = document.getElementById('lunchUpBtn');
             const downBtn = document.getElementById('lunchDownBtn');
             const positionDisplay = document.getElementById('lunchPositionDisplay');
             const timeEdit = document.getElementById('lunchTimeEdit');
 
+            upBtn.textContent = t.lunchUp;
+            downBtn.textContent = t.lunchDown;
+
             if (lunchBreakEnabled) {
-                toggleBtn.textContent = '🙈 隐藏午休';
+                toggleBtn.textContent = t.lunchHide;
                 upBtn.disabled = lunchBreakPosition <= 0;
                 downBtn.disabled = lunchBreakPosition >= periodCount;
-                positionDisplay.textContent = `第${lunchBreakPosition}节后`;
+                positionDisplay.textContent = t.lunchPosText(lunchBreakPosition);
                 timeEdit.style.display = 'flex';
             } else {
-                toggleBtn.textContent = '🍱 显示午休';
+                toggleBtn.textContent = t.lunchShow;
                 upBtn.disabled = true;
                 downBtn.disabled = true;
-                positionDisplay.textContent = '未显示';
+                positionDisplay.textContent = t.lunchNotShown;
                 timeEdit.style.display = 'none';
             }
 
-            // 更新时间输入框
             document.getElementById('lunchStartTime').value = lunchTime.start;
             document.getElementById('lunchEndTime').value = lunchTime.end;
         }
 
         // ==================== 课程表渲染 ====================
         function renderSchedule() {
+            const t = i18n[currentLang];
             const container = document.getElementById('schedulePreview');
             const showSaturday = document.getElementById('showSaturday')?.checked !== false;
             const showSunday = document.getElementById('showSunday')?.checked !== false;
@@ -1507,14 +1679,13 @@
 
             let html = '<table class="schedule-table' + (equalWidth ? ' equal-width' : '') + '">';
             html += '<thead><tr>';
-            html += '<th>时间</th>';
-            for (let day in dayMap) {
+            html += `<th>${t.timeColHeader}</th>`;
+            for (let day in t.days) {
                 if ((day === 'saturday' && !showSaturday) || (day === 'sunday' && !showSunday)) continue;
-                html += `<th>${dayMap[day]}</th>`;
+                html += `<th>${t.days[day]}</th>`;
             }
             html += '</tr></thead><tbody>';
 
-            // 计算可见天数
             let visibleDays = 5;
             if (showSaturday) visibleDays++;
             if (showSunday) visibleDays++;
@@ -1522,7 +1693,7 @@
             for (let i = 0; i < periodCount; i++) {
                 html += '<tr>';
                 const timeStr = getTimeDisplayStr(i);
-                html += `<td class="time-cell" data-period-index="${i}"><strong>第${i + 1}节</strong>${timeStr}</td>`;
+                html += `<td class="time-cell" data-period-index="${i}"><strong>${t.periodLabel(i + 1)}</strong>${timeStr}</td>`;
 
                 for (let day in scheduleData) {
                     if ((day === 'saturday' && !showSaturday) || (day === 'sunday' && !showSunday)) continue;
@@ -1551,18 +1722,16 @@
                 }
                 html += '</tr>';
 
-                // 在第i节课后插入午休行
                 if (lunchBreakEnabled && i + 1 === lunchBreakPosition) {
                     html += '<tr class="lunch-row">';
-                    html += `<td class="lunch-cell" colspan="${visibleDays + 1}">🍱 午 休 时 间 🍱<span class="lunch-time-display">${lunchTime.start} — ${lunchTime.end}</span></td>`;
+                    html += `<td class="lunch-cell" colspan="${visibleDays + 1}">${t.lunchRowText}<span class="lunch-time-display">${lunchTime.start} — ${lunchTime.end}</span></td>`;
                     html += '</tr>';
                 }
             }
 
-            // 如果午休在所有课程之后
             if (lunchBreakEnabled && lunchBreakPosition === periodCount) {
                 html += '<tr class="lunch-row">';
-                html += `<td class="lunch-cell" colspan="${visibleDays + 1}">🍱 午 休 时 间 🍱<span class="lunch-time-display">${lunchTime.start} — ${lunchTime.end}</span></td>`;
+                html += `<td class="lunch-cell" colspan="${visibleDays + 1}">${t.lunchRowText}<span class="lunch-time-display">${lunchTime.start} — ${lunchTime.end}</span></td>`;
                 html += '</tr>';
             }
 
@@ -1571,12 +1740,11 @@
             container.setAttribute('data-saturday-visible', showSaturday);
             container.setAttribute('data-sunday-visible', showSunday);
 
-            // 课程节数控制
             html += `
                 <div class="period-controls" style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
-                    <button class="btn btn-period-remove" id="removePeriodBtn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, var(--secondary-medium) 0%, var(--secondary-light) 100%); border: 2px solid var(--primary-medium); border-radius: 15px; cursor: pointer; color: var(--text-dark); font-weight: 600;">➖ 减少一节</button>
-                    <span style="display: flex; align-items: center; font-weight: 600; color: var(--text-dark);">共 ${periodCount} 节课</span>
-                    <button class="btn btn-period-add" id="addPeriodBtn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 100%); border: 2px solid var(--primary-medium); border-radius: 15px; cursor: pointer; color: white; font-weight: 600;">➕ 新增一节</button>
+                    <button class="btn btn-period-remove" id="removePeriodBtn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, var(--secondary-medium) 0%, var(--secondary-light) 100%); border: 2px solid var(--primary-medium); border-radius: 15px; cursor: pointer; color: var(--text-dark); font-weight: 600;">${t.reducePeriod}</button>
+                    <span style="display: flex; align-items: center; font-weight: 600; color: var(--text-dark);">${t.totalPeriods(periodCount)}</span>
+                    <button class="btn btn-period-add" id="addPeriodBtn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 100%); border: 2px solid var(--primary-medium); border-radius: 15px; cursor: pointer; color: white; font-weight: 600;">${t.addPeriod}</button>
                 </div>
             `;
             container.innerHTML = html;
@@ -1587,6 +1755,7 @@
         }
 
         function addPeriodControlListeners() {
+            const t = i18n[currentLang];
             document.getElementById('addPeriodBtn').addEventListener('click', () => {
                 if (periodCount < 12) {
                     periodCount++;
@@ -1598,28 +1767,26 @@
                     while (periodTimes.length < periodCount) {
                         periodTimes.push({ start: '', end: '' });
                     }
-                    // 如果午休位置超出范围，调整
                     if (lunchBreakPosition > periodCount) lunchBreakPosition = periodCount;
                     saveToLocalStorage();
                     renderSchedule();
                     updateLunchControls();
-                    showNotification(`➕ 已添加第${periodCount}节课`);
+                    showNotification(t.toastPeriodAdded(periodCount));
                 } else {
-                    showNotification('⚠️ 最多支持12节课');
+                    showNotification(t.toastPeriodMax);
                 }
             });
 
             document.getElementById('removePeriodBtn').addEventListener('click', () => {
                 if (periodCount > 1) {
                     periodCount--;
-                    // 如果午休位置超出范围，调整
                     if (lunchBreakPosition > periodCount) lunchBreakPosition = periodCount;
                     saveToLocalStorage();
                     renderSchedule();
                     updateLunchControls();
-                    showNotification(`➖ 已删除最后一节课`);
+                    showNotification(t.toastPeriodRemoved);
                 } else {
-                    showNotification('⚠️ 至少需要1节课');
+                    showNotification(t.toastPeriodMin);
                 }
             });
         }
@@ -1655,15 +1822,16 @@
 
         // ==================== 课程选择弹窗 ====================
         function openCourseModal(day, index) {
+            const t = i18n[currentLang];
             currentEditCell = { day, index };
-            document.getElementById('modalCellInfo').textContent = `${dayMap[day]} 第${index + 1}节`;
+            document.getElementById('modalCellInfo').textContent = `${t.days[day]} ${t.periodLabel(index + 1)}`;
 
             const optionsContainer = document.getElementById('courseOptions');
             let optionsHTML = '';
             courseList.forEach(course => {
                 optionsHTML += `<div class="course-option" data-course="${course.name}" data-emoji="${course.emoji}"><span class="option-emoji">${course.emoji}</span>${course.name}</div>`;
             });
-            optionsHTML += `<div class="course-option rest-option" data-course="😴 休息" data-emoji="😴"><span class="option-emoji">😴</span>休息</div>`;
+            optionsHTML += `<div class="course-option rest-option" data-course="😴 ${t.restOption}" data-emoji="😴"><span class="option-emoji">😴</span>${t.restOption}</div>`;
             optionsContainer.innerHTML = optionsHTML;
 
             document.querySelectorAll('.course-option').forEach(option => {
@@ -1702,15 +1870,12 @@
             const newCourse = document.getElementById('customCourseInput').value.trim();
             const newEmoji = document.getElementById('customEmojiInput').value.trim() || '📚';
 
-            // 更新数据
             scheduleData[day].courses[index] = newCourse;
 
-            // 如果是新课程，自动添加到课程列表
             if (newCourse && !courseList.some(c => c.name === newCourse)) {
                 courseList.push({ name: newCourse, emoji: newEmoji });
                 renderCourseManager();
             } else if (newCourse) {
-                // 更新已有课程的emoji
                 const existing = courseList.find(c => c.name === newCourse);
                 if (existing) existing.emoji = newEmoji;
                 renderCourseManager();
@@ -1719,7 +1884,7 @@
             saveToLocalStorage();
             renderSchedule();
             closeCourseModal();
-            showNotification('✅ 课程已更新！');
+            showNotification(i18n[currentLang].toastCourseUpdated);
         }
 
         function clearCellCourse() {
@@ -1729,7 +1894,7 @@
             saveToLocalStorage();
             renderSchedule();
             closeCourseModal();
-            showNotification('🗑️ 已清空该节课！');
+            showNotification(i18n[currentLang].toastCellCleared);
         }
 
         function initModalEvents() {
@@ -1749,7 +1914,7 @@
         function printSchedule() {
             const scheduleHTML = document.getElementById('schedulePreview').innerHTML;
             document.getElementById('printSchedule').innerHTML = scheduleHTML;
-            const motivation = motivationText || '学习很苦,坚持很酷';
+            const motivation = motivationText || i18n[currentLang].defaultMotivation;
             document.getElementById('printMotivation').textContent = `✨ ${motivation} 💖`;
             window.print();
         }
@@ -1757,6 +1922,7 @@
         // ==================== 本地存储 ====================
         function saveToLocalStorage() {
             const dataToSave = {
+                currentLang: currentLang,
                 scheduleData: scheduleData,
                 motivationText: motivationText,
                 ownerName: ownerName,
@@ -1779,6 +1945,7 @@
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
+                    currentLang = parsed.currentLang || 'zh';
                     if (parsed.scheduleData) {
                         for (let day in parsed.scheduleData) {
                             if (scheduleData[day] && parsed.scheduleData[day].courses) {
@@ -1786,19 +1953,19 @@
                             }
                         }
                     }
-                    motivationText = parsed.motivationText || '学习很苦,坚持很酷';
-                    ownerName = parsed.ownerName || '张小鸣';
+                    motivationText = parsed.motivationText || i18n[currentLang].defaultMotivation;
+                    ownerName = parsed.ownerName || i18n[currentLang].defaultName;
                     currentTheme = parsed.currentTheme || 'sakura';
                     periodCount = parsed.periodCount || 8;
                     if (parsed.periodTimes) periodTimes = parsed.periodTimes;
                     if (parsed.courseList && Array.isArray(parsed.courseList)) {
-                        // 兼容旧格式（字符串数组）和新格式（对象数组）
                         courseList = parsed.courseList.map(c => {
                             if (typeof c === 'string') return { name: c, emoji: '📚' };
                             return { name: c.name, emoji: c.emoji || '📚' };
                         });
+                    } else {
+                        courseList = JSON.parse(JSON.stringify(i18n[currentLang].defaultCourses));
                     }
-                    // 午休设置
                     lunchBreakEnabled = parsed.lunchBreakEnabled || false;
                     lunchBreakPosition = parsed.lunchBreakPosition || 4;
                     if (parsed.lunchTime) lunchTime = parsed.lunchTime;
@@ -1827,34 +1994,11 @@
                 return;
             }
 
-            // 兼容v3版本
-            saved = localStorage.getItem('scheduleData_v3');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    if (parsed.scheduleData) {
-                        for (let day in parsed.scheduleData) {
-                            if (scheduleData[day] && parsed.scheduleData[day].courses) {
-                                scheduleData[day].courses = parsed.scheduleData[day].courses;
-                            }
-                        }
-                    }
-                    motivationText = parsed.motivationText || '学习很苦,坚持很酷';
-                    ownerName = parsed.ownerName || '张小鸣';
-                    currentTheme = parsed.currentTheme || 'sakura';
-                    periodCount = parsed.periodCount || 8;
-                    if (parsed.periodTimes) periodTimes = parsed.periodTimes;
-                    if (parsed.courseList && Array.isArray(parsed.courseList)) {
-                        courseList = parsed.courseList.map(c => {
-                            if (typeof c === 'string') return { name: c, emoji: '📚' };
-                            return { name: c.name, emoji: c.emoji || '📚' };
-                        });
-                    }
-                    document.getElementById('motivationText').value = motivationText;
-                } catch (e) {
-                    console.error('加载数据失败:', e);
-                }
-            }
+            // 首次加载无配置时，赋予默认英文/中文数据
+            courseList = JSON.parse(JSON.stringify(i18n[currentLang].defaultCourses));
+            ownerName = i18n[currentLang].defaultName;
+            motivationText = i18n[currentLang].defaultMotivation;
+            document.getElementById('motivationText').value = motivationText;
         }
 
         // ==================== 通知 ====================
@@ -1912,7 +2056,7 @@
                 ownerName = newName;
                 updateOwnerNameDisplay();
                 saveToLocalStorage();
-                showNotification('✅ 名字已更新！');
+                showNotification(i18n[currentLang].toastNameUpdated);
             }
             document.getElementById('nameInputContainer').classList.remove('active');
             document.getElementById('ownerNameDisplay').style.display = 'flex';
@@ -1922,7 +2066,7 @@
             document.getElementById('ownerNameText').textContent = ownerName;
             document.getElementById('ownerIcon').textContent = theme.icon;
             document.getElementById('ownerDecor').textContent = theme.decor;
-            document.title = `${ownerName}的课程表 🦋`;
+            document.title = `${ownerName}${i18n[currentLang].pageTitleSuffix}`;
             document.getElementById('printOwnerName').textContent = `${theme.icon} ${ownerName} ${theme.decor}`;
             document.getElementById('printDecorLeft').textContent = theme.printLeft;
             document.getElementById('printDecorRight').textContent = theme.printRight;
@@ -1935,7 +2079,7 @@
                     const theme = btn.dataset.theme;
                     applyTheme(theme);
                     saveToLocalStorage();
-                    showNotification('🎨 主题已切换！');
+                    showNotification(i18n[currentLang].toastThemeChanged);
                 });
             });
         }
@@ -1968,7 +2112,7 @@
         }
         function openTimeModal(index) {
             currentTimeIndex = index;
-            document.getElementById('timePeriodInfo').textContent = `第${index + 1}节`;
+            document.getElementById('timePeriodInfo').textContent = i18n[currentLang].periodLabel(index + 1);
             const time = periodTimes[index];
             document.getElementById('timeStart').value = time.start || '08:00';
             document.getElementById('timeEnd').value = time.end || '08:45';
@@ -1987,7 +2131,7 @@
             saveToLocalStorage();
             renderSchedule();
             closeTimeModal();
-            showNotification('⏰ 时间已设置！');
+            showNotification(i18n[currentLang].toastTimeSet);
         }
         function clearTimeEdit() {
             if (currentTimeIndex < 0) return;
@@ -1995,7 +2139,7 @@
             saveToLocalStorage();
             renderSchedule();
             closeTimeModal();
-            showNotification('🗑️ 时间已清空！');
+            showNotification(i18n[currentLang].toastTimeCleared);
         }
     </script>
 </body>
